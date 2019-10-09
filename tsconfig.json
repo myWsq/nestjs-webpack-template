@@ -9,7 +9,8 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@app/*": ["src/*"],
+      "@lib/*": ["lib/*"]
     },
     "incremental": true
   },

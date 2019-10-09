@@ -1,8 +1,7 @@
 {
-  "name": "nest-test",
+  "name": "nestjs-webpack-template",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "NestJs Start kit with hot-reload",
   "license": "MIT",
   "scripts": {
     "commit": "git-cz",

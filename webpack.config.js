@@ -2,21 +2,35 @@ const webpack = require('webpack');
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const WebpackShellPlugin = require('webpack-shell-plugin-next');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
 const isProduction = process.env.NODE_ENV === 'production';
+const isDebug = process.env.NODE_ENV === 'debug';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 module.exports = {
-    entry: ['./src/main.ts'],
+    entry: ['webpack/hot/poll?1', './src/main.ts'],
     target: 'node',
-    watch: !isProduction,
+    watch: isDevelopment || isDebug,
     mode: isProduction ? 'production' : 'development',
+    devtool: 'source-map',
     externals: [
-        nodeExternals(),
+        nodeExternals({
+            whitelist: ['webpack/hot/poll?1']
+        }),
     ],
     module: {
         rules: [
             {
-                test: /.ts?$/,
-                use: 'ts-loader',
+                test: /.tsx?$/,
+                use: {
+                    loader: 'ts-loader',
+                    options: {
+                        // disable type checker - we will use it in fork plugin
+                        transpileOnly: true,
+                        experimentalWatchApi: true,
+                    }
+                },
                 exclude: /node_modules/
             },
         ],
@@ -26,13 +40,14 @@ module.exports = {
         alias: {
             "@": path.resolve(__dirname, 'src')
         },
-        unsafeCache: true
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
+        new webpack.NamedModulesPlugin(),
+        new ForkTsCheckerWebpackPlugin(),
         new WebpackShellPlugin({
             onBuildEnd: {
-                scripts: [isProduction ? 'node dist/server.js' : 'npm run watch'],
+                scripts: [ isDebug ? 'node --inspect-brk dist/server.js':'node dist/server.js'],
             }
         })],
     output: {
